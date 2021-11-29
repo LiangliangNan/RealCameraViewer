@@ -40,12 +40,10 @@ int main(int argc, char **argv) {
     // Initialize logging.
     logging::initialize(true);
 
-    // the bundler file (We use only the camera intrinsic and extrinsic parameters).
-    const std::string bundler_file = "/Users/lnan/Documents/Projects/Impossible/data";
-    // the point cloud file.
-    const std::string cloud_file = "/Users/lnan/Documents/Projects/Impossible/data/PointCloud/pointcloud_COLMAP-cleaned.ply";
+    const std::string bundler_file = "/Users/lnan/Documents/Projects/EasyRoom3D/data";
+    const std::string cloud_file = "/Users/lnan/Documents/Projects/EasyRoom3D/data/PointCloud/pointcloud_COLMAP-cleaned.ply";
 
-    RealCamera viewer("Tutorial_205_RealCamera", bundler_file, cloud_file);
+    RealCamera viewer("EasyRoom3D", bundler_file, cloud_file);
 
     viewer.usage_func_ = []() -> std::string {
         return ("------------ Real Camera usage ---------- \n"

@@ -146,7 +146,7 @@ void RealCamera::switch_to_view(int view_index) {
         int h = static_cast<int>(c.K(1, 2) * 2.0f);
 
         // make sure the aspect ratio (actual size does not matter)
-        resize(w * 0.5, h * 0.5);
+        resize(w * 0.4, h * 0.4);
     }
 }
 

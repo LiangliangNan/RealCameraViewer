@@ -38,6 +38,7 @@ namespace easy3d {
     class Camera;
     class Texture;
     class LinesDrawable;
+    class PointsDrawable;
 }
 
 class RealCamera : public easy3d::Viewer
@@ -74,6 +75,9 @@ private:
 private:
     easy3d::Texture* texture_;
     easy3d::LinesDrawable* cameras_drwable_;
+
+    // point cloud boundaries
+    easy3d::PointsDrawable* cloud_boundaries_;
 };
 
 

@@ -26,6 +26,8 @@
 
 #include "viewer.h"
 
+#include "point_cloud_boundary.h"
+
 #include <easy3d/core/point_cloud.h>
 #include <easy3d/renderer/drawable_points.h>
 #include <easy3d/renderer/drawable_lines.h>
@@ -50,6 +52,7 @@ RealCamera::RealCamera(const std::string& title,
     , current_view_(0)
     , texture_(nullptr)
     , cameras_drwable_(nullptr)
+    , cloud_boundaries_(nullptr)
 {
     if (add_model(cloud_file)) {
         auto drawable = current_model()->renderer()->get_points_drawable("vertices");
@@ -97,6 +100,30 @@ bool RealCamera::key_press_event(int key, int modifiers) {
             cameras_drwable_->set_visible(!cameras_drwable_->is_visible());
             update();
         }
+        return true;
+    }
+    else if (key == GLFW_KEY_B) {
+        PointCloud* cloud = dynamic_cast<PointCloud*>(current_model());
+        if (!cloud)
+            return false;
+
+        if (!cloud_boundaries_) {
+            cloud_boundaries_ = new PointsDrawable("boundaries");
+
+            cloud_boundaries_->set_uniform_coloring(vec4(1, 0, 0, 1.0f));
+            cloud_boundaries_->set_point_size(5.0f);
+            cloud_boundaries_->set_impostor_type(PointsDrawable::SPHERE);
+            cloud_boundaries_->set_visible(true);
+            add_drawable(cloud_boundaries_); // add the drawable to the viewer
+        }
+
+        auto boundaries = PointCloudBoundary::apply(cloud, 30, 3.5f);
+        std::vector<vec3> vertices;
+        for (auto v : boundaries) {
+            const vec3& p = cloud->position(v);
+            vertices.push_back(p);
+        }
+        cloud_boundaries_->update_vertex_buffer(vertices);
         return true;
     }
     else
@@ -155,10 +182,10 @@ void RealCamera::update_cameras_drawable()
 {
     if (!cameras_drwable_) {
         cameras_drwable_ = new LinesDrawable("cameras");
-        add_drawable(cameras_drwable_); // add the camera drawables to the viewer
         cameras_drwable_->set_uniform_coloring(vec4(0, 0, 1, 1.0f));
         cameras_drwable_->set_line_width(2.0f);
         cameras_drwable_->set_visible(false); // default is hidden
+        add_drawable(cameras_drwable_); // add the camera drawable to the viewer
     }
 
     std::vector<vec3> vertices;

@@ -48,8 +48,9 @@ int main(int argc, char **argv) {
 
     viewer.usage_func_ = []() -> std::string {
         return ("------------ Real Camera usage ---------- \n"
-                "Press 'Space' to switch views\n"
-                "Press 'H' to show/hide the cameras\n"
+                "'<' or '>': switch views\n"
+                "'H':        show/hide the cameras\n"
+                "'B':        detect boundaries from point cloud"
                 "----------------------------------------- \n");
     };
 

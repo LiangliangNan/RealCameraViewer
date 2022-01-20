@@ -18,3 +18,10 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} easy3d::viewer)
 
+# The data directory
+target_compile_definitions(
+        ${PROJECT_NAME}
+        PRIVATE
+        "DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\""
+)
+

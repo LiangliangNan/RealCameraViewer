@@ -27,9 +27,9 @@
 #include "viewer.h"
 #include <easy3d/util/logging.h>
 
-/// This example shows how to visualize a model using the calibrated cameras
-/// (so the rendering will be offered at the same view as the images).
-/// The camera parameters were recovered using computer vision techniques like calibration or SfM.
+/// This example shows how to visualize a model using the calibrated cameras (so the rendering will be offered at
+/// the same view as in the images).
+/// The camera parameters were recovered using standard computer vision techniques like calibration or SfM.
 
 
 using namespace easy3d;
@@ -38,10 +38,10 @@ int main(int argc, char **argv) {
     // Initialize logging.
     logging::initialize(true);
 
-    const std::string bundler_file = "/Users/lnan/Documents/Projects/EasyRoom3D/data";
-    const std::string cloud_file = "/Users/lnan/Documents/Projects/EasyRoom3D/data/PointCloud/pointcloud_COLMAP-cleaned.ply";
+    const std::string data_dir = DATA_DIR;
+    const std::string cloud_file = data_dir + "/pointcloud/pointcloud.ply";
 
-    RealCameraViewer viewer("RealCameraViewer", bundler_file, cloud_file);
+    RealCameraViewer viewer("RealCameraViewer", data_dir, cloud_file);
 
     viewer.usage_func_ = []() -> std::string {
         return ("------------ Real Camera usage ---------- \n"
@@ -51,6 +51,5 @@ int main(int argc, char **argv) {
     };
 
     // Run the viewer
-    // the camera will be initialized to the first view when the viewer is initialized
-    return viewer.run(false);
+    return viewer.run(false);   // the camera will be initialized to the first view when the viewer is initialized
 }

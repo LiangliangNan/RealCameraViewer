@@ -1,5 +1,9 @@
 # Visualizing 3D data (point clouds/meshes) with calibrated cameras
 
+|              view 00        |           view 03          |           view 11          |
+|-----------------------------|----------------------------|----------------------------|
+| ![](snapshots/view_00.png)  | ![](snapshots/view_03.png) | ![](snapshots/view_11.png) |
+
 
 ## How to build it:
  - Grab the source code of [Easy3D](https://github.com/LiangliangNan/Easy3D) and build it.

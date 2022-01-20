@@ -43,7 +43,7 @@ namespace easy3d {
             axes.begin();
             for (unsigned int j = 0; j < neighbors.size(); ++j) {
                 int idx = neighbors[j];
-                axes.add_point(points[idx]);
+                axes.add(points[idx]);
             }
             axes.end();
 

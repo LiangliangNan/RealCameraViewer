@@ -39,6 +39,8 @@
 #include <easy3d/util/string.h>
 #include <easy3d/util/file_system.h>
 
+#include <easy3d/kdtree/kdtree_search_eth.h>
+
 #include <3rd_party/glfw/include/GLFW/glfw3.h>	// for the KEYs
 
 
@@ -53,6 +55,7 @@ RealCamera::RealCamera(const std::string& title,
     , texture_(nullptr)
     , cameras_drwable_(nullptr)
     , cloud_boundaries_(nullptr)
+    , cloud_lines_(nullptr)
 {
     if (add_model(cloud_file)) {
         auto drawable = current_model()->renderer()->get_points_drawable("vertices");
@@ -107,6 +110,7 @@ bool RealCamera::key_press_event(int key, int modifiers) {
         if (!cloud)
             return false;
 
+#if 0
         if (!cloud_boundaries_) {
             cloud_boundaries_ = new PointsDrawable("boundaries");
 
@@ -124,6 +128,46 @@ bool RealCamera::key_press_event(int key, int modifiers) {
             vertices.push_back(p);
         }
         cloud_boundaries_->update_vertex_buffer(vertices);
+#else
+        const std::string lines_file = "/Users/lnan/Downloads/hough-3d-lines/data/nimalines.txt";
+        std::ifstream input(lines_file.c_str());
+
+        vec3 a, b;
+        vec4 color;
+        std::vector<vec3> points;
+        while (!input.eof()) {
+            input >> a >> color;
+            input >> b >> color;
+            if (input.good()) {
+                points.push_back(a);
+                points.push_back(b);
+            }
+        }
+
+        if (!cloud_boundaries_) {
+            cloud_boundaries_ = new PointsDrawable("boundaries");
+            cloud_boundaries_->set_uniform_coloring(vec4(1, 0, 0, 1.0f));
+            cloud_boundaries_->set_point_size(5.0f);
+            cloud_boundaries_->set_impostor_type(PointsDrawable::SPHERE);
+            cloud_boundaries_->set_visible(true);
+            add_drawable(cloud_boundaries_); // add the drawable to the viewer
+        }
+        cloud_boundaries_->update_vertex_buffer(points);
+
+
+//        std::cout << "number of lines: " << points.size() * 0.5f << std::endl;
+//
+//        if (!cloud_lines_) {
+//            cloud_lines_ = new LinesDrawable("lines");
+//            cloud_lines_->set_uniform_coloring(vec4(1, 0, 0, 1.0f));
+//            cloud_lines_->set_line_width(5.0f);
+//            cloud_lines_->set_impostor_type(LinesDrawable::CYLINDER);
+//            cloud_lines_->set_visible(true);
+//            add_drawable(cloud_lines_); // add the drawable to the viewer
+//        }
+//        cloud_lines_->update_vertex_buffer(points);
+
+#endif
         return true;
     }
     else

@@ -78,6 +78,7 @@ private:
 
     // point cloud boundaries
     easy3d::PointsDrawable* cloud_boundaries_;
+    easy3d::LinesDrawable* cloud_lines_;
 };
 
 

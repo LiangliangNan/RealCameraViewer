@@ -42,7 +42,6 @@ int main(int argc, char **argv) {
 
     const std::string bundler_file = "/Users/lnan/Documents/Projects/EasyRoom3D/data";
     const std::string cloud_file = "/Users/lnan/Documents/Projects/EasyRoom3D/data/PointCloud/pointcloud_COLMAP-cleaned.ply";
-//    const std::string cloud_file = "/Users/lnan/Documents/Projects/EasyRoom3D/data/PointCloud/pointcloud_Nail.ply";
 
     RealCamera viewer("EasyRoom3D", bundler_file, cloud_file);
 
@@ -50,7 +49,7 @@ int main(int argc, char **argv) {
         return ("------------ Real Camera usage ---------- \n"
                 "'<' or '>': switch views\n"
                 "'H':        show/hide the cameras\n"
-                "'B':        detect boundaries from point cloud"
+                "'B':        detect boundaries from point cloud\n"
                 "----------------------------------------- \n");
     };
 

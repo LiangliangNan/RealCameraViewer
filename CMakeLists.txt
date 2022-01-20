@@ -14,9 +14,7 @@ add_executable(${PROJECT_NAME}
         viewer.h
         viewer.cpp
         read_calibrated_images.cpp
-        point_cloud_boundary.h
-        point_cloud_boundary.cpp
         )
 
-target_link_libraries(${PROJECT_NAME} easy3d::core easy3d::renderer easy3d::viewer)
+target_link_libraries(${PROJECT_NAME} easy3d::viewer)
 

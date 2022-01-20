@@ -24,8 +24,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  ********************************************************************/
 
-#ifndef EASY3D_TUTORIAL_REAL_CAMERA_H
-#define EASY3D_TUTORIAL_REAL_CAMERA_H
+#ifndef CAMERA_VIEWER_H
+#define CAMERA_VIEWER_H
 
 #include <easy3d/viewer/viewer.h>
 
@@ -41,10 +41,10 @@ namespace easy3d {
     class PointsDrawable;
 }
 
-class RealCamera : public easy3d::Viewer
+class RealCameraViewer : public easy3d::Viewer
 {
 public:
-    RealCamera(const std::string& title,
+    RealCameraViewer(const std::string& title,
                const std::string& image_data_dir,
                const std::string& cloud_file);
     
@@ -63,8 +63,8 @@ private:
     
     bool read_calibrated_images(const std::string& dir);
     
-    // K [R T] -> easy3d camera representation
-    bool KRT_to_camera(int view_index, easy3d::Camera* c);
+    // converts "K [R T]" representation to easy3d::Camera representation
+    void KRT_to_camera(const CameraPara& para, easy3d::Camera* c);
     void load_image(int view_index);
     void switch_to_view(int view_index);
 
@@ -75,11 +75,7 @@ private:
 private:
     easy3d::Texture* texture_;
     easy3d::LinesDrawable* cameras_drwable_;
-
-    // point cloud boundaries
-    easy3d::PointsDrawable* cloud_boundaries_;
-    easy3d::LinesDrawable* cloud_lines_;
 };
 
 
-#endif // EASY3D_TUTORIAL_REAL_CAMERA_H
+#endif // CAMERA_VIEWER_H

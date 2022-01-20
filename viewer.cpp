@@ -26,9 +26,6 @@
 
 #include "viewer.h"
 
-#include "point_cloud_boundary.h"
-
-#include <easy3d/core/point_cloud.h>
 #include <easy3d/renderer/drawable_points.h>
 #include <easy3d/renderer/drawable_lines.h>
 #include <easy3d/renderer/camera.h>
@@ -36,10 +33,7 @@
 #include <easy3d/renderer/texture_manager.h>
 #include <easy3d/renderer/shapes.h>
 #include <easy3d/renderer/renderer.h>
-#include <easy3d/util/string.h>
 #include <easy3d/util/file_system.h>
-
-#include <easy3d/kdtree/kdtree_search_eth.h>
 
 #include <3rd_party/glfw/include/GLFW/glfw3.h>	// for the KEYs
 
@@ -47,15 +41,14 @@
 using namespace easy3d;
 
 
-RealCamera::RealCamera(const std::string& title,
+
+RealCameraViewer::RealCameraViewer(const std::string& title,
                        const std::string& image_data_dir,
                        const std::string& cloud_file)
     : Viewer(title, 4, 3, 2, false, false)
     , current_view_(0)
     , texture_(nullptr)
     , cameras_drwable_(nullptr)
-    , cloud_boundaries_(nullptr)
-    , cloud_lines_(nullptr)
 {
     if (add_model(cloud_file)) {
         auto drawable = current_model()->renderer()->get_points_drawable("vertices");
@@ -65,18 +58,18 @@ RealCamera::RealCamera(const std::string& title,
         if (read_calibrated_images(image_data_dir))
             update_cameras_drawable();
         else
-            std::cerr << "Error: failed load bundler file." << std::endl;
+            LOG(ERROR) << "failed to load calibrated images";
 
         camera()->setUpVector(vec3(0, 1, 0));
         camera()->setViewDirection(vec3(0, 0, -1));
         fit_screen();
     }
     else
-        std::cerr << "Error: failed load point cloud." << std::endl;
+        LOG(ERROR) << "failed to load point cloud data";
 }
 
 
-void RealCamera::init() {
+void RealCameraViewer::init() {
     Viewer::init();
 
     if (views_.size() > 0)
@@ -84,7 +77,7 @@ void RealCamera::init() {
 }
 
 
-bool RealCamera::key_press_event(int key, int modifiers) {
+bool RealCameraViewer::key_press_event(int key, int modifiers) {
     if (key == GLFW_KEY_COMMA && modifiers == 0) {
         if (!views_.empty()) {
             current_view_ = (current_view_ - 1 + views_.size()) % views_.size();
@@ -105,77 +98,12 @@ bool RealCamera::key_press_event(int key, int modifiers) {
         }
         return true;
     }
-    else if (key == GLFW_KEY_B) {
-        PointCloud* cloud = dynamic_cast<PointCloud*>(current_model());
-        if (!cloud)
-            return false;
-
-#if 0
-        if (!cloud_boundaries_) {
-            cloud_boundaries_ = new PointsDrawable("boundaries");
-
-            cloud_boundaries_->set_uniform_coloring(vec4(1, 0, 0, 1.0f));
-            cloud_boundaries_->set_point_size(5.0f);
-            cloud_boundaries_->set_impostor_type(PointsDrawable::SPHERE);
-            cloud_boundaries_->set_visible(true);
-            add_drawable(cloud_boundaries_); // add the drawable to the viewer
-        }
-
-        auto boundaries = PointCloudBoundary::apply(cloud, 30, 3.5f);
-        std::vector<vec3> vertices;
-        for (auto v : boundaries) {
-            const vec3& p = cloud->position(v);
-            vertices.push_back(p);
-        }
-        cloud_boundaries_->update_vertex_buffer(vertices);
-#else
-        const std::string lines_file = "/Users/lnan/Downloads/hough-3d-lines/data/nimalines.txt";
-        std::ifstream input(lines_file.c_str());
-
-        vec3 a, b;
-        vec4 color;
-        std::vector<vec3> points;
-        while (!input.eof()) {
-            input >> a >> color;
-            input >> b >> color;
-            if (input.good()) {
-                points.push_back(a);
-                points.push_back(b);
-            }
-        }
-
-        if (!cloud_boundaries_) {
-            cloud_boundaries_ = new PointsDrawable("boundaries");
-            cloud_boundaries_->set_uniform_coloring(vec4(1, 0, 0, 1.0f));
-            cloud_boundaries_->set_point_size(5.0f);
-            cloud_boundaries_->set_impostor_type(PointsDrawable::SPHERE);
-            cloud_boundaries_->set_visible(true);
-            add_drawable(cloud_boundaries_); // add the drawable to the viewer
-        }
-        cloud_boundaries_->update_vertex_buffer(points);
-
-
-//        std::cout << "number of lines: " << points.size() * 0.5f << std::endl;
-//
-//        if (!cloud_lines_) {
-//            cloud_lines_ = new LinesDrawable("lines");
-//            cloud_lines_->set_uniform_coloring(vec4(1, 0, 0, 1.0f));
-//            cloud_lines_->set_line_width(5.0f);
-//            cloud_lines_->set_impostor_type(LinesDrawable::CYLINDER);
-//            cloud_lines_->set_visible(true);
-//            add_drawable(cloud_lines_); // add the drawable to the viewer
-//        }
-//        cloud_lines_->update_vertex_buffer(points);
-
-#endif
-        return true;
-    }
     else
         return Viewer::key_press_event(key, modifiers);
 }
 
 
-void RealCamera::load_image(int view_index) {
+void RealCameraViewer::load_image(int view_index) {
     if (view_index < 0 || view_index >= views_.size()) {
         LOG(ERROR) << "invalid view index: " << view_index << "(available views: " << views_.size() << ")";
         return;
@@ -187,42 +115,39 @@ void RealCamera::load_image(int view_index) {
         update();
     }
     else
-        LOG(ERROR) << "image not found: " << image_file << std::endl;
+        LOG(ERROR) << "image not found: " << image_file;
 }
 
 
-bool RealCamera::KRT_to_camera(int view_index, Camera* c) {
-    if (view_index < 0 || view_index >= views_.size()) {
-        std::cerr << "Error: invalid view index (" << view_index << ")" << std::endl;
-        return false;
-    }
-
-    const CameraPara& cam = views_[view_index];
-    mat34 M(1.0f);
-    mat34 proj = cam.K * M * cam.Rt;
+void RealCameraViewer::KRT_to_camera(const CameraPara& para, Camera* c) {
+    const mat34 M(1.0f);
+    const mat34 proj = para.K * M * para.Rt;
     c->set_from_calibration(proj);
-	return true;
 }
 
 
-void RealCamera::switch_to_view(int view_index) {
-    if (KRT_to_camera(current_view_, camera())) {
-        load_image(view_index);
-
-        std::cout << "----- view: " << current_view_ << std::endl;
-        set_title("RealCamera: View_" + std::to_string(current_view_));
-        const CameraPara &c = views_[current_view_];
-
-        int w = static_cast<int>(c.K(0, 2) * 2.0f);
-        int h = static_cast<int>(c.K(1, 2) * 2.0f);
-
-        // make sure the aspect ratio (actual size does not matter)
-        resize(w * 0.4, h * 0.4);
+void RealCameraViewer::switch_to_view(int view_index) {
+    if (view_index < 0 || view_index >= views_.size()) {
+        LOG(ERROR) << "invalid view index: " << view_index << "(available views: " << views_.size() << ")";
+        return;
     }
+
+    KRT_to_camera(views_[view_index], camera());
+    load_image(view_index);
+
+    std::cout << "----- view: " << current_view_ << std::endl;
+    set_title("RealCameraViewer: View_" + std::to_string(current_view_));
+
+    const CameraPara &c = views_[current_view_];
+    const int w = static_cast<int>(c.K(0, 2) * 2.0f);
+    const int h = static_cast<int>(c.K(1, 2) * 2.0f);
+
+    // make sure the aspect ratio (actual size does not matter)
+    resize(w * 0.4, h * 0.4);
 }
 
 
-void RealCamera::update_cameras_drawable()
+void RealCameraViewer::update_cameras_drawable()
 {
     if (!cameras_drwable_) {
         cameras_drwable_ = new LinesDrawable("cameras");
@@ -235,7 +160,7 @@ void RealCamera::update_cameras_drawable()
     std::vector<vec3> vertices;
     for (std::size_t i = 0; i < views_.size(); ++i) {
         Camera c;
-        KRT_to_camera(i, &c);
+        KRT_to_camera(views_[i], &c);
         int w = static_cast<int>(views_[i].K(0, 2) * 2.0f);
         int h = static_cast<int>(views_[i].K(1, 2) * 2.0f);
         std::vector<vec3> points;
@@ -248,14 +173,14 @@ void RealCamera::update_cameras_drawable()
 }
 
 
-void RealCamera::post_draw() {
+void RealCameraViewer::post_draw() {
     Viewer::post_draw();
 
     if (texture_ == nullptr)
         return;
 
-    int w = width() * dpi_scaling();
-    int h = height() * dpi_scaling();
+    const int w = width() * dpi_scaling();
+    const int h = height() * dpi_scaling();
 
     int tex_w = texture_->width();
     int tex_h = texture_->height();

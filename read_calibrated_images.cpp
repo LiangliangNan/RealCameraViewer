@@ -32,7 +32,7 @@
 
 using namespace easy3d;
 
-bool RealCamera::read_calibrated_images(const std::string& dir) {
+bool RealCameraViewer::read_calibrated_images(const std::string& dir) {
     const std::string cam_dir = dir + "/cams";
     std::vector<std::string> cam_files;
     file_system::get_directory_entries(cam_dir, cam_files, false);

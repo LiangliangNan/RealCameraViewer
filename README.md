@@ -1,4 +1,4 @@
-# Visualizing 3D data (point clouds/meshes) with calibrated cameras
+# Visualizing 3D data with calibrated cameras
 
 |              view 00        |           view 03          |           view 11          |
 |-----------------------------|----------------------------|----------------------------|

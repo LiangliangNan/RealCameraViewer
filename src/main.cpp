@@ -43,12 +43,10 @@ int main(int argc, char **argv) {
 
     RealCameraViewer viewer("RealCameraViewer", data_dir, cloud_file);
 
-    viewer.usage_func_ = []() -> std::string {
-        return ("------------ Real Camera usage ---------- \n"
-                "'<' or '>': switch views\n"
-                "'H':        show/hide the cameras\n"
-                "----------------------------------------- \n");
-    };
+    viewer.usage_string_ = "------------ Real Camera usage ---------- \n"
+                           "'<' or '>': switch views\n"
+                           "'H':        show/hide the cameras\n"
+                           "----------------------------------------- \n";
 
     // Run the viewer
     return viewer.run(false);   // the camera will be initialized to the first view when the viewer is initialized
